@@ -6,9 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Gabriel Stechschulte">
 <meta name="dcterms.date" content="2023-06-10">
 
-<title>Cached - Google Summer of Code - Update 1</title>
+<title>Cached - Google Summer of Code - Community Bonding and Modularization</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -70,10 +71,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -93,7 +94,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-submit-button-title": "Submit"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -140,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Google Summer of Code - Update 1</h1>
+      <h1 class="title">Google Summer of Code - Community Bonding and Modularization</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">open-source</div>
                 <div class="quarto-category">python</div>
@@ -152,6 +158,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   
   <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Gabriel Stechschulte </p>
+            </div>
+    </div>
       
       <div>
       <div class="quarto-title-meta-heading">Published</div>
@@ -174,16 +186,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>I have been selected as a contributor under the organization <a href="https://numfocus.org">NumFOCUS</a> for the Google Summer of Code 2023 program. I will be working on <em>developing better tools to interpret complex Bambi regression models</em>. More details about the project can be found <a href="https://summerofcode.withgoogle.com/projects/#6187085698856448">here</a>. This blog post will be a summary of the community bonding period and the first two weeks of the program.</p>
+<section id="google-summer-of-code-2023" class="level1">
+<h1>Google Summer of Code 2023</h1>
+<p>I have been selected as a contributor under the organization <a href="https://numfocus.org">NumFOCUS</a> for the Google Summer of Code 2023 program. I will be working on <em>developing better tools to interpret complex Bambi regression models</em>. More details about the project can be found <a href="https://summerofcode.withgoogle.com/projects/#6187085698856448">here</a>. This blog post will be a summary of the community bonding period and the progress made over the first two weeks of the program.</p>
 <p>Timeline of events:</p>
 <ul>
 <li>Community Bonding Period (May 4th - 28th)</li>
 <li>Week 1 (May 29th - June 4th)</li>
 <li>Week 2 (June 5th - June 11th)</li>
 </ul>
-</section>
 <section id="community-bonding-period" class="level2">
 <h2 class="anchored" data-anchor-id="community-bonding-period">Community Bonding Period</h2>
 <p>The community bonding period is a time for students to get to know their mentors and organizations, and to change / finalize project details. I have been in contact with my mentors Tomás Capretto and Osvaldo Martin via Slack and GitHub. A goal of mine throughout the community bonding period was not only to get to know my mentors, but also to familiarize myself with the Bambi codebase before coding officially began. To achieve this, I read through the codebase attempting to understand how the different modules interact with one another. Additionally, I read through the Bambi documentation to understand how the different models are implemented, and any additional functionality provided the library. After familarizing myself with the codebase at a high level, I decided to get a jumpstart on the project deliverables for week 1 through 4. Below is a table of the deliverables for the entire project timeline.</p>
@@ -254,10 +265,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 </section>
-<section id="progress" class="level2">
-<h2 class="anchored" data-anchor-id="progress">Progress</h2>
+</section>
+<section id="progress" class="level1">
+<h1>Progress</h1>
+<section id="plot_cap-using-posterior-predictive-samples" class="level2">
+<h2 class="anchored" data-anchor-id="plot_cap-using-posterior-predictive-samples"><code>plot_cap</code> using posterior predictive samples</h2>
 <p>Predictions at the observation level for <code>plot_cap</code> were implemented in <a href="https://github.com/bambinos/bambi/pull/668">PR 668</a>. By default, <code>plot_cap</code> uses the posterior distribution to visualize some mean outcome parameter of a a GLM. However, the posterior predictive distribution can also be plotted by specifying <code>pps=True</code> where <code>pps</code> stands for <em>posterior predictive samples</em> of the response variable. Upon completion of the PR above, an example showing the functionality of <code>plot_cap</code> was added to the Bambi documentation in <a href="https://github.com/bambinos/bambi/pull/670">PR 670</a>.</p>
-<p>Completing these two deliveribles early on in the program allowed me to spend more time on the design of the <code>plots</code> sub-package and implementation of <code>plot_comparisons</code> (which is ending up to be more complex than initially thought). For the design of the <code>plots</code> sub-package, I decided to create five different modules, each with a specific purpose. The modules are as follows:</p>
+</section>
+<section id="modularization-of-the-plots-sub-package" class="level2">
+<h2 class="anchored" data-anchor-id="modularization-of-the-plots-sub-package">Modularization of the <code>plots</code> sub-package</h2>
+<p>Completing the week one and two deliveribles early on in the program allowed me to spend more time on the design of the <code>plots</code> sub-package and implementation of <code>plot_comparisons</code>. For the design of the <code>plots</code> sub-package, I decided to create five different modules, each with a specific purpose. The modules are as follows:</p>
 <ul>
 <li><code>create_data.py</code> - creates the data called by the functions in the <code>effects.py</code> and <code>comparisons.py</code> modules.</li>
 <li><code>effects.py</code> - contains the functions (<code>predictions</code>, <code>comparisons</code>, <code>slopes</code>) that are used to create the dataframe that is passed to the plotting functions and or user when called standalone.</li>
@@ -266,27 +283,105 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>plot_types.py</code> - determines the plot types (numeric or categorical) for the the <code>plotting</code> module.</li>
 </ul>
 <p>The modularization of the <code>plots</code> sub-package will allow for easier maintenance and testing of the codebase and offers re-usability of code using OOP principles. The modularization of code happened during the initial development stages of the <code>plot_comparisons</code> function.</p>
-<p>Currently, <code>plot_comparisons</code> only works when a user defines the covariate and its contrast, and the covariates they would like to condition on. For example:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># user provided contrast for `Age` and default grid </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># calculated for the conditional variable `SexCode`</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>titanic_model,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>titanic_idata,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    contrast_predictor<span class="op">=</span>{<span class="st">"Age"</span>: [<span class="dv">50</span>, <span class="dv">70</span>]},</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"SexCode"</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>or</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># user can also pass a dict into conditional to define the </span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># values used for the conditional variables</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>titanic_model,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>titanic_idata,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    contrast_predictor<span class="op">=</span>{<span class="st">"PClass"</span>: [<span class="dv">1</span>, <span class="dv">3</span>]},</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"Age"</span>: [<span class="dv">50</span>], <span class="st">"SexCode"</span>: [<span class="dv">0</span>, <span class="dv">1</span>]}</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Next week, default contrast values will be computed for numeric and categorical conrast predictors. Additionally, default values for both numeric and categorical conditinoal variables will be added. This will allow the user to call <code>plot_comparisons</code> without having to specify contrast and conditional variable values.</p>
+</section>
+<section id="comparisons-plot_comparisons" class="level2">
+<h2 class="anchored" data-anchor-id="comparisons-plot_comparisons">Comparisons: <code>plot_comparisons</code></h2>
+<p>Predictive comparisons refers to the predictions made by a model for different covariate values while holding one or more variable constant. For example, we may be interested in the following quantity, “how does the probability of survival (outcome) change if a passenger travels in 1st class vs.&nbsp;3rd class? given a certain age and sex?” Thus, the objective of the comparisons plotting functionality is to plot comparisons on the y-axis against values of one or more covariates on the x-axis</p>
+<p>Currently, <code>plot_comparisons</code> only works when a user explicitly passes the contrast covariate and its value, and the conditional covariate and values they would like to condition on.</p>
+<div class="cell" data-execution_count="1">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bambi.plots <span class="im">import</span> plot_comparison, comparisons</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="4">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> pd.read_csv(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Titanic.csv"</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    index_col<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>dat[<span class="st">"PClass"</span>] <span class="op">=</span> dat[<span class="st">"PClass"</span>].<span class="bu">str</span>.replace(<span class="st">"[st, nd, rd]"</span>, <span class="st">""</span>, regex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>dat[<span class="st">"PClass"</span>] <span class="op">=</span> dat[<span class="st">"PClass"</span>].<span class="bu">str</span>.replace(<span class="st">"*"</span>, <span class="st">"0"</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>dat[<span class="st">"PClass"</span>] <span class="op">=</span> dat[<span class="st">"PClass"</span>].replace(<span class="dv">0</span>, np.nan)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>dat[<span class="st">"PClass"</span>] <span class="op">=</span> pd.Categorical(dat[<span class="st">"PClass"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>dat[<span class="st">"SexCode"</span>] <span class="op">=</span> pd.Categorical(dat[<span class="st">"SexCode"</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>dat <span class="op">=</span> dat.dropna(axis<span class="op">=</span><span class="dv">0</span>, how<span class="op">=</span><span class="st">"any"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>titanic_model <span class="op">=</span> bmb.Model(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Survived ~ PClass * SexCode * Age"</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>dat, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>titanic_idata <span class="op">=</span> titanic_model.fit(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Modeling the probability that Survived==1
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, PClass, SexCode, PClass:SexCode, Age, PClass:Age, SexCode:Age, PClass:SexCode:Age]
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 16 seconds.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="8000" class="" max="8000" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [8000/8000 00:15&lt;00:00 Sampling 4 chains, 0 divergences]
+    </div>
+    
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># user can also pass a dict into conditional to define the </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># values used for the conditional variables</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>titanic_model,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>titanic_idata,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"PClass"</span>: [<span class="dv">1</span>, <span class="dv">3</span>]},</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"Age"</span>: [<span class="dv">50</span>], <span class="st">"SexCode"</span>: [<span class="dv">0</span>, <span class="dv">1</span>]}</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="2023-06-10-gsoc_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Comparing an individual of <code>Age</code>= <span class="math inline">\(50\)</span> and <code>SexCode</code> = <span class="math inline">\(0\)</span>, moving <code>PClass</code> from <span class="math inline">\(1\)</span> to <span class="math inline">\(3\)</span> decreases the probability of survival by about <span class="math inline">\(0.2\)</span>. For <code>SexCode</code> = <span class="math inline">\(1\)</span>, the probability of survival decrease by nearly <span class="math inline">\(0.5\)</span>.</p>
+</section>
+<section id="next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
+<p>The next weeks will involve adding: * default contrast and conditional values so the user does not have to explicitly pass them. * unit-level comparisons which uses the observed data instead of creating a hypothetical dataset to compute comparison estimates. * an average by argument to allow the user to marginalize over a subset of covariates.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

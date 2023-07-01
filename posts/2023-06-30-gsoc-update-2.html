@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Gabriel Stechschulte">
-<meta name="dcterms.date" content="2023-06-17">
+<meta name="dcterms.date" content="2023-06-30">
 
-<title>Cached - Google Summer of Code - Update 2</title>
+<title>Cached - Google Summer of Code - Average Predictive Comparisons</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -71,10 +71,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -146,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Google Summer of Code - Update 2</h1>
+      <h1 class="title">Google Summer of Code - Average Predictive Comparisons</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">open-source</div>
                 <div class="quarto-category">python</div>
@@ -168,7 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">June 17, 2023</p>
+        <p class="date">June 30, 2023</p>
       </div>
     </div>
     
@@ -188,9 +188,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>It is currently the end of week five of Google Summer of Code 2023. According to the original deliverables table outlined in my proposal, the goal was to have opened a draft PR for the core functionality of the <code>plot_comparisons</code>. Subsequently, week six and seven were to be spent further developing the <code>plot_comparisons</code> function, and writing tests and a demo notebook for the documentation, respectively. However, at the end of week five, I have a PR open with the majority of the functionality that <a href="https://vincentarelbundock.github.io/marginaleffects/">marginaleffects</a> has. In addition, I also exposed the <code>comparisons</code> function, added tests (which can and will be improved), and have started on documentation.</p>
 <section id="average-predictive-comparisons" class="level1">
-<h1>Average Predictive Comparisons</h1>
+<h1>Average predictive comparisons</h1>
 <p><code>comparisons</code> and <code>plot_comparisons</code> are a part of Bambi’s sub-package <code>plots</code> that feature a set of functions used to interpret complex regression models. This sub-package is inspired by the R package <a href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. These two functions allow the modeler to <strong>compare</strong> the predictions made by a model for different contrasts and covariate values.</p>
-<p>Due to the link function in a GLM, there are typically three quantities of interest to interpret: 1. the linear predictor <span class="math inline">\(\eta = X\beta\)</span> where <span class="math inline">\(X\)</span> is an <span class="math inline">\(n\)</span> x <span class="math inline">\(p\)</span> matrix of explanatory variables. 2. the mean <span class="math inline">\(\mu = g^{-1}(\eta)\)</span> where the link function <span class="math inline">\(g(\cdot)\)</span> relates the linear predictor to the mean of the outcome variable <span class="math inline">\(\mu = g^{-1}(\eta) = g^{-1}(X\beta)\)</span> 3. the response variable <span class="math inline">\(Y \sim \mathcal{D}(\mu, \theta)\)</span> where <span class="math inline">\(\mu\)</span> is the mean parameter and <span class="math inline">\(\theta\)</span> is (possibly) a vector that contains all the other “nuissance” parameters of the distribution.</p>
+<p>Due to the link function in a GLM, there are typically three quantities of interest to interpret:</p>
+<ol type="1">
+<li>the linear predictor <span class="math inline">\(\eta = X\beta\)</span> where <span class="math inline">\(X\)</span> is an <span class="math inline">\(n\)</span> x <span class="math inline">\(p\)</span> matrix of explanatory variables.</li>
+<li>the mean <span class="math inline">\(\mu = g^{-1}(\eta)\)</span> where the link function <span class="math inline">\(g(\cdot)\)</span> relates the linear predictor to the mean of the outcome variable <span class="math inline">\(\mu = g^{-1}(\eta) = g^{-1}(X\beta)\)</span></li>
+<li>the response variable <span class="math inline">\(Y \sim \mathcal{D}(\mu, \theta)\)</span> where <span class="math inline">\(\mu\)</span> is the mean parameter and <span class="math inline">\(\theta\)</span> is (possibly) a vector that contains all the other “nuissance” parameters of the distribution.</li>
+</ol>
 <p>With GLMs, <span class="math inline">\(\eta\)</span> is linear in the parameters, but non-linear in relation to the outputs <span class="math inline">\(Y\)</span> due to the link function <span class="math inline">\(g\)</span>. Thus, as modelers, we are usually more interested in interpreting (2) and (3). For example, in logistic regression, the linear predictor is on the log-odds scale, but the response variable is on the probability scale. In Poisson regression, the linear predictor is on the log-scale, but the response variable is on the count scale. Referring back to logistic regression, a specified difference in one of the <span class="math inline">\(x\)</span> variables does <em>not</em> correspond to a constant difference in the the probability of the outcome.</p>
 <p>It is often helpful with GLMs, to the modeler and audience, to have a summary that gives the expected difference in the outcome corresponding to a unit difference in each of the input variables. Thus, the goal of <code>comparisons</code> and <code>plot_comparisons</code> is to provide the modeler with a summary and visualization of the average predicted comparisons.</p>
 <section id="methodology" class="level2">
@@ -198,13 +203,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Here, I adopt the notation from Chapter 14.4 of <a href="https://avehtari.github.io/ROS-Examples/">Regression and Other Stories</a> to describe the methodology of average predicted comparisons.</p>
 <p>Assume we have fit a Bambi model predicting an outcome <span class="math inline">\(Y\)</span> based on inputs <span class="math inline">\(X\)</span> and parameters <span class="math inline">\(\theta\)</span>. Consider the following scalar inputs:</p>
 <p><span class="math display">\[u: \text{the input of interest}\]</span> <span class="math display">\[v: \text{all the other inputs}\]</span> <span class="math display">\[X = (u, v)\]</span></p>
-<p>Suppose for the input of interest, we are interested in comparing <span class="math inline">\(u = u^{\text{high}}\)</span> to <span class="math inline">\(u = u^{\text{low}}\)</span> with all other inputs <span class="math inline">\(v\)</span> held constant. The <em>predictive difference</em> in the outcome changing <strong>only</strong> <span class="math inline">\(u\)</span> from is:</p>
+<p>Suppose for the input of interest, we are interested in comparing <span class="math inline">\(u^{\text{high}}\)</span> to <span class="math inline">\(u^{\text{low}}\)</span> (perhap age = <span class="math inline">\(60\)</span> and <span class="math inline">\(40\)</span> respectively) with all other inputs <span class="math inline">\(v\)</span> held constant. The <em>predictive difference</em> in the outcome changing <strong>only</strong> <span class="math inline">\(u\)</span> is:</p>
 <p><span class="math display">\[\text{predictive difference (comparison)} = \mathbb{E}(y|u^{\text{high}}, v, \theta) - \mathbb{E}(y|u^{\text{low}}, v, \theta)\]</span></p>
 <p>Selecting the maximum and minimum values of <span class="math inline">\(u\)</span> and averaging over all other inputs <span class="math inline">\(v\)</span> in the data gives you a new “hypothetical” dataset and corresponds to counting all pairs of transitions of <span class="math inline">\((u^\text{low})\)</span> to <span class="math inline">\((u^\text{high})\)</span>, i.e., differences in <span class="math inline">\(u\)</span> with <span class="math inline">\(v\)</span> held constant.</p>
 </section>
 <section id="implementation" class="level2">
 <h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
-<p>To demonstrase how to compute and plot <em>average predictive comparisons</em> with <code>comparisons</code> and <code>plot_comparions</code>, we model and predict how many fish are caught by visitors to a state park. Many visitors catch zero fish, either because they did not fish at all, or because they were unlucky. We would like to explicitly model this bimodal behavior (zero versus non-zero) using a Zero Inflated Poisson model, and to compare how different inputs of interest <span class="math inline">\(u\)</span> and other covariate values <span class="math inline">\(v\)</span> are associated with the number of fish caught.</p>
+<p>To demonstrase how to compute and plot <em>average predictive comparisons</em> with <code>comparisons</code> and <code>plot_comparions</code>, we model and predict how many fish are caught by visitors at a state park. Many visitors catch zero fish, either because they did not fish at all, or because they were unlucky. We would like to explicitly model this bimodal behavior (zero versus non-zero) using a Zero Inflated Poisson model, and to compare how different inputs of interest <span class="math inline">\(u\)</span> and other covariate values <span class="math inline">\(v\)</span> are associated with the number of fish caught.</p>
 <div class="cell" data-execution_count="19">
 <details>
 <summary>Code</summary>
@@ -222,26 +227,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>fish_data[<span class="st">"livebait"</span>] <span class="op">=</span> fish_data[<span class="st">"livebait"</span>].astype(<span class="st">"category"</span>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>fish_data[<span class="st">"camper"</span>] <span class="op">=</span> fish_data[<span class="st">"camper"</span>].astype(<span class="st">"category"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>likelihood <span class="op">=</span> bmb.Likelihood(<span class="st">"ZeroInflatedPoisson"</span>, params<span class="op">=</span>[<span class="st">"mu"</span>, <span class="st">"psi"</span>], parent<span class="op">=</span><span class="st">"mu"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> {<span class="st">"mu"</span>: <span class="st">"log"</span>, <span class="st">"psi"</span>: <span class="st">"logit"</span>}</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>zip_family <span class="op">=</span> bmb.Family(<span class="st">"zip"</span>, likelihood, links)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"psi"</span>: bmb.Prior(<span class="st">"Beta"</span>, alpha<span class="op">=</span><span class="dv">3</span>, beta<span class="op">=</span><span class="dv">3</span>)}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fish_model <span class="op">=</span> bmb.Model(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"count ~ livebait + camper + persons + child"</span>, </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    fish_data, </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span>zip_family</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>fish_idata <span class="op">=</span> fish_model.fit(</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fish_model <span class="op">=</span> bmb.Model(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"count ~ livebait + camper + persons + child"</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    fish_data, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">'zero_inflated_poisson'</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>fish_idata <span class="op">=</span> fish_model.fit(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -279,29 +277,29 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <section id="default-contrast-and-conditional-values" class="level3">
 <h3 class="anchored" data-anchor-id="default-contrast-and-conditional-values">Default contrast and conditional values</h3>
 <p>In both <code>plot_comparisons</code> and <code>comparisons</code>, <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are represented by <code>contrast</code> and <code>conditional</code>, respectively. Lets say we are interested in comparing the number of fish caught for <code>livebait</code> = [0, 1] conditional on the number of people.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>) </span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>) </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="2023-06-17-gsoc-update-2_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
+<p><img src="2023-06-30-gsoc-update-2_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>By default, if no value is passed with <code>contrast</code>, then the mean or mode is computed (depending on the data type used to fit the model) as the contrast value. As live bait is category data type and no value was passed, the contrast value is [0, 1]. By default, <code>comparisons</code> compares <span class="math inline">\(u^\text{high}\)</span> to <span class="math inline">\(u^\text{low}\)</span>. Thus, in this example, <span class="math inline">\(u^\text{high}\)</span> = 1 and <span class="math inline">\(u^\text{low}\)</span> = 0. The plot shows us that comparing a group of two people who used live bait and no live bait, the expected difference in the number of fish caught is about <span class="math inline">\(2\)</span>. As the number of people in the group increases, the expected difference also increases.</p>
 <p>We can call <code>comparisons</code> directly to view a summary dataframe that includes the term <span class="math inline">\(u\)</span> and its contrast, the specified <code>conditional</code> covariate, and the expected difference in the outcome with the uncertainty interval (by default the 94% highest density interval is computed). We see that <code>camper</code> and <code>child</code> are also in the summary dataframe. This is because for unspecified covariates, <code>comparisons</code> and <code>plot_comparisons</code> computes a default value (mean or mode based on the data type of the covariate). Thus, <span class="math inline">\(v\)</span> = <code>persons</code>, <code>camper</code>, <code>child</code>.</p>
-<div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>comparisons_df <span class="op">=</span> comparisons(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>comparisons_df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>comparisons_df <span class="op">=</span> comparisons(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>comparisons_df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
 <div>
 
 
@@ -327,9 +325,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.000000</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.656590</td>
-<td>0.483500</td>
-<td>0.833816</td>
+<td>0.654667</td>
+<td>0.483362</td>
+<td>0.838686</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
@@ -338,9 +336,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.061224</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.692487</td>
-<td>0.509677</td>
-<td>0.873858</td>
+<td>0.690484</td>
+<td>0.512999</td>
+<td>0.883717</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
@@ -349,9 +347,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.122449</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.730352</td>
-<td>0.545617</td>
-<td>0.924122</td>
+<td>0.728266</td>
+<td>0.544810</td>
+<td>0.930400</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -360,9 +358,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.183674</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.770294</td>
-<td>0.578521</td>
-<td>0.971953</td>
+<td>0.768122</td>
+<td>0.583730</td>
+<td>0.984383</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
@@ -371,9 +369,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.244898</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.812425</td>
-<td>0.616945</td>
-<td>1.024377</td>
+<td>0.810164</td>
+<td>0.607509</td>
+<td>1.024170</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
@@ -382,9 +380,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.306122</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.856867</td>
-<td>0.647213</td>
-<td>1.069846</td>
+<td>0.854514</td>
+<td>0.642664</td>
+<td>1.076049</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">6</td>
@@ -393,9 +391,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.367347</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.903747</td>
-<td>0.687662</td>
-<td>1.127065</td>
+<td>0.901299</td>
+<td>0.695035</td>
+<td>1.146263</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">7</td>
@@ -404,9 +402,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.428571</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>0.953198</td>
-<td>0.730820</td>
-<td>1.186828</td>
+<td>0.950652</td>
+<td>0.737713</td>
+<td>1.206457</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">8</td>
@@ -415,9 +413,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.489796</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>1.005363</td>
-<td>0.770465</td>
-<td>1.244912</td>
+<td>1.002716</td>
+<td>0.758100</td>
+<td>1.245945</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">9</td>
@@ -426,9 +424,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <td>1.551020</td>
 <td>1.0</td>
 <td>0.684</td>
-<td>1.060390</td>
-<td>0.813576</td>
-<td>1.306117</td>
+<td>1.057638</td>
+<td>0.825102</td>
+<td>1.332072</td>
 </tr>
 </tbody>
 </table>
@@ -438,31 +436,32 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>Furthermore, <code>conditional</code> is not limited to one covariate. We can pass a list of covariates to condition on. For example, we can also include <code>camper</code>.</p>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"persons"</span>, <span class="st">"camper"</span>],</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>) </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="2023-06-30-gsoc-update-2_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="unit-level-contrasts" class="level3">
+<h3 class="anchored" data-anchor-id="unit-level-contrasts">Unit level contrasts</h3>
+<p>Evaluating average predictive comparisons at central values for the conditional covariates <span class="math inline">\(v\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math inline">\(v\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math inline">\(v\)</span> to compute the predictive comparisons, and then average over a specific or set of covariates to obtain the average predictive comparisons. To achieve unit level contrasts, do not pass a parameter into <code>conditional</code> and or specify <code>None</code>.</p>
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>unit_level <span class="op">=</span> comparisons(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"persons"</span>, <span class="st">"camper"</span>],</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>) </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<p><img src="2023-06-17-gsoc-update-2_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-<section id="unit-level-contrasts" class="level4">
-<h4 class="anchored" data-anchor-id="unit-level-contrasts">Unit level contrasts</h4>
-<p>Evaluating average predictive comparisons at central values for the conditional covariates <span class="math inline">\(v\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math inline">\(v\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math inline">\(v\)</span> to compute the predictive comparisons, and then average over a specific or set of covariates to obtain the average predictive comparisons. To achieve unit level contrasts, do not pass a parameter into <code>conditional</code> and or specify <code>None</code>.</p>
-<div class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>unit_level <span class="op">=</span> comparisons(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># empirical distribution</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(unit_level.shape[<span class="dv">0</span>] <span class="op">==</span> fish_model.data.shape[<span class="dv">0</span>])</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>unit_level.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># empirical distribution</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(unit_level.shape[<span class="dv">0</span>] <span class="op">==</span> fish_model.data.shape[<span class="dv">0</span>])</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>unit_level.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
@@ -601,16 +600,18 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 </div>
+<section id="marginalizing-over-covariates" class="level4">
+<h4 class="anchored" data-anchor-id="marginalizing-over-covariates">Marginalizing over covariates</h4>
 <p>Since the empirical distrubution is used for computing the average predictive comparisons, the same number of rows (250) is returned as the data used to fit the model. To average over a covariate, use the <code>average_by</code> argument. If <code>True</code> is passed, then <code>comparisons</code> averages over all covariates. Else, if a single or list of covariates are passed, then <code>comparisons</code> averages by the covariates passed.</p>
 <div class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># marginalize over all covariates</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># marginalize over all covariates</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 
@@ -642,14 +643,14 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by number of persons</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"persons"</span>]</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by number of persons</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"persons"</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="39">
 <div>
 
@@ -710,14 +711,14 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by number of persons and camper</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"persons"</span>, <span class="st">"camper"</span>]</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by number of persons and camper</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"persons"</span>, <span class="st">"camper"</span>]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="40">
 <div>
 
@@ -822,11 +823,25 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 </div>
+<p>It is still possible to use <code>plot_comparisons</code> when passing an argument to <code>average_by</code>. In the plot below, the empirical distribution is used to compute unit level contrasts for <code>livebait</code> and then averaged over <code>persons</code> to obtain the average predictive comparisons. The plot below is similar to the second plot in this notebook. The differences being that: (1) a pairwise transition grid is defined for the second plot above, whereas the empirical distribution is used in the plot below, and (2) in the plot below, we marginalized over the other covariates in the model (thus the reason for not having a camper group, and a reduction in the uncertainty interval).</p>
+<div class="cell" data-execution_count="48">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"livebait"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"persons"</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="2023-06-30-gsoc-update-2_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+</div>
+</div>
 </section>
 </section>
 <section id="user-specified-contrast-and-conditional-values" class="level3">
 <h3 class="anchored" data-anchor-id="user-specified-contrast-and-conditional-values">User specified contrast and conditional values</h3>
-<p>The modeller can also pass their own values for <code>contrast</code> and <code>conditional</code> by using a dictionary where the key, value pairs are the covariate and value(s) to use. For example, if we wanted to compare the number of fish caught for <span class="math inline">\(4\)</span> versus <span class="math inline">\(1\)</span> <code>persons</code> conditional on a range of <code>child</code> and <code>livebait</code> values, we would pass the following dictionary.</p>
+<p>The modeller can also pass their own values for <code>contrast</code> and <code>conditional</code> by using a dictionary where the key, value pairs are the covariate and value(s) to use. For example, if we wanted to compare the number of fish caught for <span class="math inline">\(4\)</span> versus <span class="math inline">\(1\)</span> <code>persons</code> conditional on a range of <code>child</code> and <code>livebait</code> values, we would pass the following dictionary. However, the user is not limited to passing a list for the values. A <code>np.array</code> can also be used.</p>
 <div class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plot_comparison(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
@@ -836,14 +851,253 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>) </span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="2023-06-17-gsoc-update-2_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
+<p><img src="2023-06-30-gsoc-update-2_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Notably, comparing <span class="math inline">\(4\)</span> to <span class="math inline">\(1\)</span> persons given <span class="math inline">\(0\)</span> children and using livebait, the expected difference is about <span class="math inline">\(26\)</span> fish. When not using livebait, the expected difference decreases substantially to about <span class="math inline">\(5\)</span> fish. Using livebait with a group of people is associated with a much larger expected difference in the number of fish caught. Oh, and don’t bring children fishing if you have plans to catch dinner.</p>
 </section>
+<section id="multiple-contrast-values" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-contrast-values">Multiple contrast values</h3>
+<p>Users can also perform comparisons on multiple contrast values. For example, if we wanted to compare the number of fish caught between <span class="math inline">\((1, 2)\)</span>, <span class="math inline">\((1, 4)\)</span>, and <span class="math inline">\((2, 4)\)</span> <code>persons</code> conditional on a range of values for <code>child</code> and <code>livebait</code>.</p>
+<div class="cell" data-execution_count="57">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>comparisons(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>fish_model,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>fish_idata,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"persons"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>]},</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"child"</span>: [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>], <span class="st">"livebait"</span>: [<span class="dv">0</span>, <span class="dv">1</span>]}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="57">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">term</th>
+<th data-quarto-table-cell-role="th">contrast</th>
+<th data-quarto-table-cell-role="th">child</th>
+<th data-quarto-table-cell-role="th">livebait</th>
+<th data-quarto-table-cell-role="th">camper</th>
+<th data-quarto-table-cell-role="th">estimate</th>
+<th data-quarto-table-cell-role="th">lower_0.03%</th>
+<th data-quarto-table-cell-role="th">upper_0.97%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>0.527627</td>
+<td>0.295451</td>
+<td>0.775465</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>2.883694</td>
+<td>2.605690</td>
+<td>3.177685</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>0.131319</td>
+<td>0.067339</td>
+<td>0.195132</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.717965</td>
+<td>0.592968</td>
+<td>0.857893</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.032960</td>
+<td>0.015212</td>
+<td>0.052075</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.180270</td>
+<td>0.123173</td>
+<td>0.244695</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>4.834472</td>
+<td>2.563472</td>
+<td>7.037150</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>26.423188</td>
+<td>23.739729</td>
+<td>29.072748</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>1.202003</td>
+<td>0.631629</td>
+<td>1.780965</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>6.571943</td>
+<td>5.469275</td>
+<td>7.642248</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.301384</td>
+<td>0.143676</td>
+<td>0.467608</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.648417</td>
+<td>1.140415</td>
+<td>2.187190</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>2.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>4.306845</td>
+<td>2.267097</td>
+<td>6.280005</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">13</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>2.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>23.539494</td>
+<td>20.990931</td>
+<td>26.240169</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">14</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>2.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>1.070683</td>
+<td>0.565931</td>
+<td>1.585718</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">15</td>
+<td>persons</td>
+<td>(1, 2)</td>
+<td>2.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>5.853978</td>
+<td>4.858957</td>
+<td>6.848519</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">16</td>
+<td>persons</td>
+<td>(1, 4)</td>
+<td>2.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>0.268423</td>
+<td>0.124033</td>
+<td>0.412274</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17</td>
+<td>persons</td>
+<td>(2, 4)</td>
+<td>2.0</td>
+<td>1.0</td>
+<td>1.0</td>
+<td>1.468147</td>
+<td>1.024800</td>
+<td>1.960934</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Notice how the contrast <span class="math inline">\(u\)</span> varies while the covariates <span class="math inline">\(v\)</span> are held constant. Currently, however, plotting multiple contrast values can be difficult to interpret since the contrast is “abstracted” away onto the y-axis. Thus, it would be difficult to interpret which portion of the plot corresponds to which contrast value. This is something I am still working on.</p>
+</section>
 <section id="conclusion" class="level3">
 <h3 class="anchored" data-anchor-id="conclusion">Conclusion</h3>
-<p>…</p>
+<p>Overall, solid progress has been made with <code>comparisons</code> and <code>plot_comparisons</code> to give the Bambi modeller insights into GLMs. One of the most difficult aspects to program is the building of the contrast dataframe (the output above) as it requires tedious shape handling to ensure the predictive comparisons are “mapped” to the correct contrast and conditional values. Writing better tests to ensure shapes are correct is something I am also working on. Additionally, there are still “nice to have” features such as:</p>
+<ul>
+<li>cross-contrasts</li>
+<li>comparisons other than the predictive difference (e.g., adjusted risk ratio)</li>
+</ul>
 
 
 </section>
